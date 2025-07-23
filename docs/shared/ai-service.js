@@ -16,19 +16,38 @@ class AIService {
    */
   async initialize(config) {
     try {
-      this.config = config || window.CONFIG;
-      if (!this.config) {
-        throw new Error('Configuration not found. Please ensure config.js is properly set up.');
+      // Use provided config, settings manager, or fallback to window.CONFIG
+      if (config) {
+        this.config = config;
+      } else if (window.settingsManager) {
+        this.config = window.settingsManager.getSettings();
+      } else if (window.CONFIG) {
+        this.config = window.CONFIG;
+      } else {
+        throw new Error('No configuration available. Please configure your AI providers in Settings.');
+      }
+      
+      // Validate that at least one provider is configured
+      const configuredProviders = this.getConfiguredProviders();
+      if (configuredProviders.length === 0) {
+        throw new Error('No AI providers configured. Please add at least one API key in Settings.');
       }
       
       this.currentProvider = this.config.defaultProvider;
+      
+      // If default provider is not configured, use the first configured one
+      if (!this.isProviderConfigured(this.currentProvider)) {
+        this.currentProvider = configuredProviders[0];
+        console.log(`Default provider not configured, switching to: ${this.currentProvider}`);
+      }
+      
       this.initialized = true;
       
       console.log(`AI Service initialized with provider: ${this.currentProvider}`);
       return true;
     } catch (error) {
       console.error('Failed to initialize AI Service:', error);
-      this.showError('Failed to initialize AI service. Please check your configuration.');
+      this.showError('Failed to initialize AI service. Please configure your providers in Settings.');
       return false;
     }
   }
@@ -121,8 +140,8 @@ class AIService {
    */
   async callGemini(prompt, options) {
     const apiKey = this.config.apiKeys.gemini;
-    if (!apiKey || apiKey === 'your-gemini-api-key-here') {
-      throw new Error('Gemini API key not configured');
+    if (!this.isProviderConfigured('gemini')) {
+      throw new Error('Gemini API key not configured. Please add your API key in Settings.');
     }
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${this.config.models.gemini.textModel}:generateContent?key=${apiKey}`, {
@@ -157,8 +176,8 @@ class AIService {
    */
   async callAzureOpenAI(prompt, options) {
     const config = this.config.apiKeys.azureOpenAI;
-    if (!config.apiKey || config.apiKey === 'your-azure-openai-api-key-here') {
-      throw new Error('Azure OpenAI API key not configured');
+    if (!this.isProviderConfigured('azureOpenAI')) {
+      throw new Error('Azure OpenAI not configured. Please add your API key, endpoint, and deployment name in Settings.');
     }
 
     const response = await fetch(`${config.endpoint}openai/deployments/${config.deploymentName}/chat/completions?api-version=2024-02-15-preview`, {
@@ -190,8 +209,8 @@ class AIService {
    */
   async callCerebras(prompt, options) {
     const apiKey = this.config.apiKeys.cerebras;
-    if (!apiKey || apiKey === 'your-cerebras-api-key-here') {
-      throw new Error('Cerebras API key not configured');
+    if (!this.isProviderConfigured('cerebras')) {
+      throw new Error('Cerebras API key not configured. Please add your API key in Settings.');
     }
 
     const response = await fetch('https://api.cerebras.ai/v1/chat/completions', {
@@ -220,14 +239,50 @@ class AIService {
   }
 
   /**
+   * Get configured providers
+   */
+  getConfiguredProviders() {
+    if (!this.config) return [];
+    
+    const configured = [];
+    for (const [providerId, config] of Object.entries(this.config.apiKeys)) {
+      if (this.isProviderConfigured(providerId, config)) {
+        configured.push(providerId);
+      }
+    }
+    return configured;
+  }
+
+  /**
    * Switch AI provider
    */
   switchProvider(provider) {
-    if (!this.config.apiKeys[provider]) {
+    if (!this.isProviderConfigured(provider)) {
       throw new Error(`Provider ${provider} not configured`);
     }
     this.currentProvider = provider;
     console.log(`Switched to AI provider: ${provider}`);
+  }
+
+  /**
+   * Refresh configuration from settings manager
+   */
+  refreshConfig() {
+    if (window.settingsManager) {
+      this.config = window.settingsManager.getSettings();
+      
+      // Update current provider if it's no longer configured
+      if (!this.isProviderConfigured(this.currentProvider)) {
+        const configuredProviders = this.getConfiguredProviders();
+        if (configuredProviders.length > 0) {
+          this.currentProvider = configuredProviders[0];
+          console.log(`Switched to available provider: ${this.currentProvider}`);
+        } else {
+          this.initialized = false;
+          console.warn('No providers configured');
+        }
+      }
+    }
   }
 
   /**
@@ -238,8 +293,8 @@ class AIService {
     
     let userMessage = 'An error occurred while processing your request.';
     
-    if (error.message.includes('API key')) {
-      userMessage = 'API key not configured. Please check your configuration.';
+    if (error.message.includes('not configured') || error.message.includes('API key')) {
+      userMessage = 'AI provider not configured. Please configure your API keys in Settings (⚙️ button).';
     } else if (error.message.includes('rate limit') || error.message.includes('quota')) {
       userMessage = 'Rate limit exceeded. Please try again in a moment.';
     } else if (error.message.includes('network') || error.message.includes('fetch')) {

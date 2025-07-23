@@ -84,15 +84,34 @@ function handleKeyboardShortcuts(event) {
 function showConfigurationHelp() {
     const helpContent = `
         <div class="odin-alert odin-alert-warning">
-            <h3>Configuration Required</h3>
-            <p>To use Odin PowerPoint Assistant, you need to configure your AI provider API keys:</p>
-            <ol>
-                <li>Copy <code>config.example.js</code> to <code>config.js</code></li>
-                <li>Add your API keys for Gemini, Azure OpenAI, or Cerebras</li>
-                <li>Choose your default provider</li>
-                <li>Reload the add-in</li>
-            </ol>
-            <p>Visit the <a href="https://github.com/itzmetanjim/copilot" target="_blank">GitHub repository</a> for detailed setup instructions.</p>
+            <h3>🔧 Configuration Required</h3>
+            <p>Welcome to Odin PowerPoint Assistant! To get started, you need to configure your AI provider API keys.</p>
+            
+            <div style="margin: 16px 0; padding: 12px; background: #f8f9fa; border-radius: 6px;">
+                <p><strong>Quick Setup:</strong></p>
+                <ol style="margin: 8px 0; padding-left: 20px;">
+                    <li>Click the <strong>⚙️ Settings</strong> button (top-right corner)</li>
+                    <li>Go to the <strong>🔑 API Keys</strong> tab</li>
+                    <li>Add your API key for at least one provider:
+                        <ul style="margin: 8px 0;">
+                            <li><strong>Google Gemini</strong> - Get free API key at <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></li>
+                            <li><strong>Azure OpenAI</strong> - Use your Azure OpenAI service credentials</li>
+                            <li><strong>Cerebras</strong> - Get API key at <a href="https://cloud.cerebras.ai" target="_blank">Cerebras Cloud</a></li>
+                        </ul>
+                    </li>
+                    <li>Save your settings and start using AI features!</li>
+                </ol>
+            </div>
+            
+            <p><strong>✨ Pro Tip:</strong> You can configure multiple providers and switch between them. The AI Assistant works entirely client-side - your API keys are stored securely in your browser's local storage.</p>
+            
+            <button class="odin-btn odin-btn-primary" onclick="showSettings()" style="margin-top: 12px;">
+                ⚙️ Open Settings
+            </button>
+            
+            <p style="margin-top: 16px; font-size: 14px; color: #666;">
+                Need help? Visit the <a href="https://github.com/itzmetanjim/copilot" target="_blank">GitHub repository</a> for detailed setup instructions.
+            </p>
         </div>
     `;
     
@@ -499,13 +518,12 @@ async function generateSummary() {
 }
 
 function showSettings() {
-    hideAllSections();
-    const panel = document.getElementById('settings-panel');
-    if (panel) {
-        panel.innerHTML = '';
-        const settingsCard = odinUI.createSettingsPanel();
-        panel.appendChild(settingsCard);
-        panel.style.display = 'block';
+    // Use the new settings UI instead of the old panel
+    if (window.settingsUI) {
+        window.settingsUI.open();
+    } else {
+        console.error('Settings UI not available');
+        aiService.showError('Settings interface not available. Please refresh the page.');
     }
 }
 
