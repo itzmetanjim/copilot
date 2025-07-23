@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Odin PowerPoint Function File</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+</head>
+
+<body>
+    <script>
+        // Initialize Office
+        Office.onReady(() => {
+            console.log('PowerPoint function file ready');
+        });
+
+        // Function called by ExecuteFunction actions in the manifest
+        function showTaskPane() {
+            Office.ribbon.requestUpdate({
+                tabs: [{
+                    id: "TabHome",
+                    groups: [{
+                        id: "OdinPPT.Group1",
+                        controls: [{
+                            id: "OdinPPT.TaskpaneButton",
+                            enabled: true
+                        }]
+                    }]
+                }]
+            });
+        }
+
+        // Register functions
+        if (typeof Office !== 'undefined') {
+            Office.actions.associate("showTaskPane", showTaskPane);
+        }
+    </script>
+</body>
+</html>

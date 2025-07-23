@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Odin Outlook Assistant</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+
+    <!-- Shared Resources -->
+    <link rel="stylesheet" type="text/css" href="../shared/styles.css" />
+    <script type="text/javascript" src="../shared/ai-service.js"></script>
+    <script type="text/javascript" src="../shared/ui-components.js"></script>
+    
+    <!-- Configuration -->
+    <script type="text/javascript" src="../config.js"></script>
+</head>
+
+<body class="odin-container">
+    <!-- Header -->
+    <div class="odin-header">
+        <h1>📧 Odin Outlook Assistant</h1>
+        <p>AI-powered email companion for Microsoft Outlook</p>
+    </div>
+
+    <!-- Provider Selector -->
+    <div id="provider-selector-container"></div>
+
+    <!-- Quick Actions Section -->
+    <div class="feature-section">
+        <h2>Quick Actions</h2>
+        <div class="quick-actions">
+            <div class="quick-action-btn" onclick="showDraftSection()">
+                <h4>✉️ Draft Email</h4>
+                <p>Generate professional emails</p>
+            </div>
+            <div class="quick-action-btn" onclick="showSummarizeSection()">
+                <h4>📄 Summarize Thread</h4>
+                <p>Analyze email conversations</p>
+            </div>
+            <div class="quick-action-btn" onclick="showCoachSection()">
+                <h4>💡 Email Coach</h4>
+                <p>Improve email tone and clarity</p>
+            </div>
+            <div class="quick-action-btn" onclick="showReplySection()">
+                <h4>⚡ Smart Reply</h4>
+                <p>Generate contextual responses</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Draft Section -->
+    <div id="draft-section" class="feature-section" style="display: none;">
+        <h2>Draft Email</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Email Purpose</label>
+            <textarea id="email-purpose" class="odin-textarea" rows="3" 
+                placeholder="E.g., Ask the marketing team for the latest campaign report..."></textarea>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Tone</label>
+            <select id="email-tone" class="odin-select">
+                <option value="professional">Professional</option>
+                <option value="friendly">Friendly</option>
+                <option value="formal">Formal</option>
+                <option value="casual">Casual</option>
+                <option value="urgent">Urgent</option>
+                <option value="apologetic">Apologetic</option>
+            </select>
+        </div>
+        <button class="odin-btn odin-btn-primary" onclick="draftEmail()">Generate Email</button>
+        <div id="draft-response" class="odin-response hidden"></div>
+        <div id="draft-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Summarize Section -->
+    <div id="summarize-section" class="feature-section" style="display: none;">
+        <h2>Summarize Email Thread</h2>
+        <div class="odin-form-group">
+            <button class="odin-btn odin-btn-primary" onclick="summarizeThread()">Summarize Current Thread</button>
+        </div>
+        <div id="summarize-response" class="odin-response hidden"></div>
+        <div id="summarize-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Coach Section -->
+    <div id="coach-section" class="feature-section" style="display: none;">
+        <h2>Email Coaching</h2>
+        <div class="odin-form-group">
+            <button class="odin-btn odin-btn-primary" onclick="coachEmail()">Analyze Current Email</button>
+        </div>
+        <div id="coach-response" class="odin-response hidden"></div>
+        <div id="coach-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Reply Section -->
+    <div id="reply-section" class="feature-section" style="display: none;">
+        <h2>Smart Reply</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Reply Type</label>
+            <select id="reply-type" class="odin-select">
+                <option value="acknowledge">Acknowledge</option>
+                <option value="accept">Accept/Agree</option>
+                <option value="decline">Decline/Disagree</option>
+                <option value="request-info">Request Information</option>
+                <option value="schedule">Schedule Meeting</option>
+                <option value="follow-up">Follow Up</option>
+            </select>
+        </div>
+        <button class="odin-btn odin-btn-primary" onclick="generateReply()">Generate Reply</button>
+        <div id="reply-response" class="odin-response hidden"></div>
+        <div id="reply-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Notification areas -->
+    <div id="ai-loading" class="odin-loading hidden"></div>
+    <div id="ai-error" class="odin-alert odin-alert-error hidden"></div>
+    <div id="ai-success" class="odin-alert odin-alert-success hidden"></div>
+
+    <!-- Outlook-specific JavaScript -->
+    <script src="outlook-assistant.js"></script>
+</body>
+</html>

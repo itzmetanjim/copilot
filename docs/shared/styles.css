@@ -1,0 +1,455 @@
+/**
+ * Odin AI Assistant Suite - Shared Styles
+ * Consistent theming across all Office Add-ins
+ */
+
+:root {
+  /* Primary Colors */
+  --primary-color: #0078d4;
+  --primary-hover: #106ebe;
+  --primary-active: #005a9e;
+  
+  /* Secondary Colors */
+  --secondary-color: #6c757d;
+  --secondary-light: #f8f9fa;
+  --secondary-dark: #495057;
+  
+  /* Status Colors */
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --info-color: #17a2b8;
+  
+  /* Neutral Colors */
+  --background-color: #ffffff;
+  --surface-color: #f5f5f5;
+  --border-color: #e0e0e0;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #868e96;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Typography */
+  --font-family-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 0;
+}
+
+/* Layout Components */
+.odin-container {
+  padding: var(--spacing-md);
+  max-width: 100%;
+}
+
+.odin-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: var(--spacing-md);
+  text-align: center;
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+}
+
+.odin-header h1 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.odin-content {
+  padding: var(--spacing-md);
+  background-color: var(--background-color);
+}
+
+.odin-footer {
+  padding: var(--spacing-sm);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Form Components */
+.odin-form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.odin-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.odin-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-md);
+  transition: border-color var(--transition-fast);
+}
+
+.odin-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+}
+
+.odin-textarea {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family-primary);
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color var(--transition-fast);
+}
+
+.odin-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+}
+
+.odin-select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-md);
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Button Components */
+.odin-btn {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-width: 80px;
+}
+
+.odin-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.odin-btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.odin-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.odin-btn-primary:active:not(:disabled) {
+  background-color: var(--primary-active);
+}
+
+.odin-btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.odin-btn-secondary:hover:not(:disabled) {
+  background-color: var(--secondary-dark);
+}
+
+.odin-btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.odin-btn-outline:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.odin-btn-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.odin-btn-warning {
+  background-color: var(--warning-color);
+  color: var(--text-primary);
+}
+
+.odin-btn-danger {
+  background-color: var(--error-color);
+  color: white;
+}
+
+.odin-btn-sm {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.odin-btn-lg {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-lg);
+}
+
+/* Alert Components */
+.odin-alert {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  border-left: 4px solid;
+}
+
+.odin-alert-success {
+  background-color: #d4edda;
+  border-color: var(--success-color);
+  color: #155724;
+}
+
+.odin-alert-warning {
+  background-color: #fff3cd;
+  border-color: var(--warning-color);
+  color: #856404;
+}
+
+.odin-alert-error {
+  background-color: #f8d7da;
+  border-color: var(--error-color);
+  color: #721c24;
+}
+
+.odin-alert-info {
+  background-color: #cce7f0;
+  border-color: var(--info-color);
+  color: #0c5460;
+}
+
+/* Loading Components */
+.odin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  color: var(--text-secondary);
+}
+
+.odin-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: var(--spacing-sm);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Card Components */
+.odin-card {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.odin-card-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+}
+
+.odin-card-body {
+  padding: var(--spacing-md);
+}
+
+.odin-card-footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+}
+
+/* Feature Section */
+.odin-feature-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.odin-feature-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: var(--spacing-xs);
+}
+
+.odin-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.odin-feature-item {
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.odin-feature-item:hover {
+  background-color: var(--surface-color);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.odin-feature-item h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--primary-color);
+  font-size: var(--font-size-md);
+}
+
+.odin-feature-item p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* Response Display */
+.odin-response {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  white-space: pre-wrap;
+  font-family: 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Action Buttons */
+.odin-action-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+/* Provider Selector */
+.odin-provider-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius-sm);
+}
+
+.odin-provider-selector label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+
+.hidden { display: none; }
+.flex { display: flex; }
+.flex-column { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.align-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .odin-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .odin-feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .odin-action-buttons {
+    flex-direction: column;
+  }
+  
+  .odin-btn {
+    width: 100%;
+  }
+}
