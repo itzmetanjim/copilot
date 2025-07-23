@@ -46,6 +46,15 @@ async function initializeOutlookAssistant() {
  * Setup UI components
  */
 function setupUI() {
+    // Initialize Settings UI
+    if (typeof SettingsUI !== 'undefined') {
+        window.settingsUI = new SettingsUI();
+        window.settingsUI.init();
+        console.log('Settings UI initialized');
+    } else {
+        console.warn('SettingsUI class not available');
+    }
+
     const sections = ['draft', 'summarize', 'coach', 'reply'];
     sections.forEach(section => {
         const actions = odinUI.createActionButtons(`${section}-response`, ['insert', 'copy']);

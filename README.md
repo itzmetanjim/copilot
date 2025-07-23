@@ -92,10 +92,10 @@ All add-ins are designed as client-side web applications that can be hosted dire
    
    **Option A: Direct Sideloading**
    - Download the manifest files from this repository:
-     - [Word Manifest](word-addin/word-manifest.xml)
-     - [Excel Manifest](excel-addin/excel-manifest.xml) 
-     - [PowerPoint Manifest](powerpoint-addin/powerpoint-manifest.xml)
-     - [Outlook Manifest](outlook-addin/outlook-manifest.xml)
+     - [Word Manifest](word-addin/manifest.xml)
+     - [Excel Manifest](excel-addin/manifest.xml) 
+     - [PowerPoint Manifest](powerpoint-addin/manifest.xml)
+     - [Outlook Manifest](outlook-addin/manifest.xml)
    - Follow Microsoft's [sideloading instructions](https://docs.microsoft.com/en-us/office/dev/add-ins/testing/sideload-office-add-ins-for-testing)
 
    **Option B: Use from GitHub Pages**

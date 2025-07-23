@@ -47,6 +47,15 @@ async function initializePowerPointAssistant() {
  * Setup UI components and event listeners
  */
 function setupUI() {
+    // Initialize Settings UI
+    if (typeof SettingsUI !== 'undefined') {
+        window.settingsUI = new SettingsUI();
+        window.settingsUI.init();
+        console.log('Settings UI initialized');
+    } else {
+        console.warn('SettingsUI class not available');
+    }
+
     // Create action buttons for each response area
     const sections = ['create', 'slide', 'notes', 'design'];
     sections.forEach(section => {
