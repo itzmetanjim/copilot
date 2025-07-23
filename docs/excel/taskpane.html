@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Odin Excel Assistant</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+
+    <!-- Shared Resources -->
+    <link rel="stylesheet" type="text/css" href="../shared/styles.css" />
+    <script type="text/javascript" src="../shared/ai-service.js"></script>
+    <script type="text/javascript" src="../shared/ui-components.js"></script>
+    
+    <!-- Configuration -->
+    <script type="text/javascript" src="../config.js"></script>
+
+    <!-- Excel-specific styles -->
+    <style>
+        .data-preview {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-sm);
+            background-color: var(--surface-color);
+            font-family: monospace;
+            font-size: 12px;
+            margin: var(--spacing-sm) 0;
+        }
+        
+        .formula-result {
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            font-family: monospace;
+            font-weight: bold;
+            margin: var(--spacing-sm) 0;
+        }
+        
+        .chart-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--spacing-sm);
+            margin: var(--spacing-sm) 0;
+        }
+        
+        .chart-type-btn {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition-fast);
+            background: white;
+        }
+        
+        .chart-type-btn:hover {
+            background-color: var(--surface-color);
+            border-color: var(--primary-color);
+        }
+        
+        .chart-type-btn.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .range-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin: var(--spacing-sm) 0;
+        }
+        
+        .range-input {
+            flex: 1;
+            padding: var(--spacing-xs);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-family: monospace;
+        }
+        
+        .data-insight-card {
+            background: linear-gradient(135deg, #f6f9fc 0%, #e9ecef 100%);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            margin: var(--spacing-sm) 0;
+        }
+        
+        .insight-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-xs) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .insight-metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-value {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body class="odin-container">
+    <!-- Header -->
+    <div class="odin-header">
+        <h1>📊 Odin Excel Assistant</h1>
+        <p>AI-powered data analysis companion for Microsoft Excel</p>
+    </div>
+
+    <!-- Provider Selector -->
+    <div id="provider-selector-container"></div>
+
+    <!-- Quick Actions Section -->
+    <div class="feature-section">
+        <h2>Quick Actions</h2>
+        <div class="quick-actions">
+            <div class="quick-action-btn" onclick="showFormulaSection()">
+                <h4>🧮 Formula Generator</h4>
+                <p>Create formulas from descriptions</p>
+            </div>
+            <div class="quick-action-btn" onclick="showAnalysisSection()">
+                <h4>📈 Data Insights</h4>
+                <p>Analyze and understand your data</p>
+            </div>
+            <div class="quick-action-btn" onclick="showChartSection()">
+                <h4>📊 Chart Creator</h4>
+                <p>Generate charts from data</p>
+            </div>
+            <div class="quick-action-btn" onclick="showFormatSection()">
+                <h4>🎨 Smart Formatting</h4>
+                <p>Apply intelligent formatting</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formula Generation Section -->
+    <div id="formula-section" class="feature-section" style="display: none;">
+        <h2>Formula Generator</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Describe what you want to calculate:</label>
+            <textarea id="formula-prompt" class="odin-textarea" rows="3" 
+                placeholder="E.g., Sum all values in column C where column A equals 'Sales' and column B is greater than 1000..."></textarea>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Target Cell or Range (Optional)</label>
+            <div class="range-selector">
+                <input type="text" id="target-range" class="range-input" placeholder="A1 or A1:B10">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="selectCurrentCell()">Use Selected</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Formula Type</label>
+            <select id="formula-type" class="odin-select">
+                <option value="any">Any Formula</option>
+                <option value="sum">SUM Functions</option>
+                <option value="lookup">LOOKUP Functions</option>
+                <option value="conditional">IF/Conditional</option>
+                <option value="statistical">Statistical</option>
+                <option value="date">Date/Time</option>
+                <option value="text">Text Functions</option>
+                <option value="financial">Financial</option>
+            </select>
+        </div>
+        <button class="odin-btn odin-btn-primary" onclick="generateFormula()">Generate Formula</button>
+        <div id="formula-response" class="odin-response hidden"></div>
+        <div id="formula-result" class="formula-result hidden"></div>
+        <div id="formula-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Data Analysis Section -->
+    <div id="analysis-section" class="feature-section" style="display: none;">
+        <h2>Data Analysis & Insights</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Data Range</label>
+            <div class="range-selector">
+                <input type="text" id="analysis-range" class="range-input" placeholder="A1:D100 or select range">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="selectDataRange()">Select Range</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="detectDataRange()">Auto-Detect</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Analysis Type</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="performQuickAnalysis('summary')">Quick Summary</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="performQuickAnalysis('trends')">Find Trends</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="performQuickAnalysis('outliers')">Find Outliers</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="performQuickAnalysis('correlations')">Correlations</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Custom Analysis Question</label>
+            <textarea id="analysis-question" class="odin-textarea" rows="2" 
+                placeholder="E.g., What are the top 3 products by profit margin? Show me the sales trend for Q2..."></textarea>
+            <button class="odin-btn odin-btn-primary" onclick="analyzeData()" style="margin-top: 8px;">Analyze Data</button>
+        </div>
+        <div id="data-preview" class="data-preview hidden"></div>
+        <div id="analysis-response" class="odin-response hidden"></div>
+        <div id="analysis-insights" class="data-insight-card hidden"></div>
+        <div id="analysis-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Chart Creation Section -->
+    <div id="chart-section" class="feature-section" style="display: none;">
+        <h2>Chart Creator</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Data Range for Chart</label>
+            <div class="range-selector">
+                <input type="text" id="chart-range" class="range-input" placeholder="A1:B10 or select range">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="selectChartRange()">Select Range</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Chart Type</label>
+            <div class="chart-options">
+                <div class="chart-type-btn" data-type="column" onclick="selectChartType('column')">
+                    📊 Column
+                </div>
+                <div class="chart-type-btn" data-type="line" onclick="selectChartType('line')">
+                    📈 Line
+                </div>
+                <div class="chart-type-btn" data-type="pie" onclick="selectChartType('pie')">
+                    🥧 Pie
+                </div>
+                <div class="chart-type-btn" data-type="bar" onclick="selectChartType('bar')">
+                    📊 Bar
+                </div>
+                <div class="chart-type-btn" data-type="scatter" onclick="selectChartType('scatter')">
+                    🔹 Scatter
+                </div>
+                <div class="chart-type-btn" data-type="area" onclick="selectChartType('area')">
+                    📊 Area
+                </div>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Chart Description (Optional)</label>
+            <textarea id="chart-description" class="odin-textarea" rows="2" 
+                placeholder="E.g., Create a bar chart showing sales by region with custom colors..."></textarea>
+        </div>
+        <button class="odin-btn odin-btn-primary" onclick="createChart()">Create Chart</button>
+        <div id="chart-response" class="odin-response hidden"></div>
+        <div id="chart-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Formatting Section -->
+    <div id="format-section" class="feature-section" style="display: none;">
+        <h2>Smart Formatting</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Data Range to Format</label>
+            <div class="range-selector">
+                <input type="text" id="format-range" class="range-input" placeholder="A1:D10 or select range">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="selectFormatRange()">Select Range</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Quick Formatting Options</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="applyQuickFormat('table')">Format as Table</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="applyQuickFormat('currency')">Currency Format</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="applyQuickFormat('percentage')">Percentage</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="applyQuickFormat('date')">Date Format</button>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="applyQuickFormat('conditional')">Conditional Format</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="applyQuickFormat('headers')">Style Headers</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="applyQuickFormat('borders')">Add Borders</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="applyQuickFormat('colors')">Color Coding</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Custom Formatting Instructions</label>
+            <textarea id="format-instructions" class="odin-textarea" rows="2" 
+                placeholder="E.g., Apply alternating row colors, highlight values above 100 in green, format numbers as thousands..."></textarea>
+            <button class="odin-btn odin-btn-primary" onclick="customFormat()" style="margin-top: 8px;">Apply Custom Format</button>
+        </div>
+        <div id="format-response" class="odin-response hidden"></div>
+        <div id="format-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Advanced Section -->
+    <div class="advanced-section">
+        <h2>Advanced Features</h2>
+        <div class="quick-actions">
+            <div class="quick-action-btn" onclick="createPivotTable()">
+                <h4>🔄 PivotTable</h4>
+                <p>Generate PivotTable from data</p>
+            </div>
+            <div class="quick-action-btn" onclick="dataValidation()">
+                <h4>✅ Data Validation</h4>
+                <p>Set up data validation rules</p>
+            </div>
+            <div class="quick-action-btn" onclick="whatIfAnalysis()">
+                <h4>🎯 What-If Analysis</h4>
+                <p>Scenario and goal seek analysis</p>
+            </div>
+            <div class="quick-action-btn" onclick="showSettings()">
+                <h4>⚙️ Settings</h4>
+                <p>Configure AI preferences</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" style="display: none;"></div>
+
+    <!-- Notification areas -->
+    <div id="ai-loading" class="odin-loading hidden"></div>
+    <div id="ai-error" class="odin-alert odin-alert-error hidden"></div>
+    <div id="ai-success" class="odin-alert odin-alert-success hidden"></div>
+
+    <!-- Excel-specific JavaScript -->
+    <script src="excel-assistant.js"></script>
+</body>
+</html>
