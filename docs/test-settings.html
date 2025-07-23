@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odin AI Settings Test</title>
+    <link rel="stylesheet" type="text/css" href="shared/styles.css" />
+    <script type="text/javascript" src="shared/settings-manager.js"></script>
+    <script type="text/javascript" src="shared/ai-service.js"></script>
+    <script type="text/javascript" src="shared/ui-components.js"></script>
+    <script type="text/javascript" src="shared/settings-ui.js"></script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .test-result {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .test-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            margin: 8px 8px 8px 0;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Odin AI Settings System Test</h1>
+    <p>This page tests the new settings management system that replaces the config.js dependency.</p>
+
+    <div class="test-section">
+        <h2>Settings Manager Tests</h2>
+        <button onclick="testSettingsManager()">Run Settings Manager Tests</button>
+        <div id="settings-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>AI Service Tests</h2>
+        <button onclick="testAIService()">Test AI Service Initialization</button>
+        <div id="ai-service-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Dynamic Model Fetching Tests</h2>
+        <button onclick="testModelFetching()">Test Model Fetching</button>
+        <div id="model-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Settings UI Test</h2>
+        <button onclick="openSettings()">Open Settings UI</button>
+        <p>Click the button above or the ⚙️ button in the top-right to test the settings interface.</p>
+        <div id="ui-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Provider Configuration Status</h2>
+        <button onclick="checkProviders()">Check Provider Status</button>
+        <div id="provider-status"></div>
+    </div>
+
+    <script>
+        // Test the settings manager
+        function testSettingsManager() {
+            const testResults = document.getElementById('settings-tests');
+            testResults.innerHTML = '';
+            
+            try {
+                // Test 1: Check if settings manager is available
+                if (!window.settingsManager) {
+                    throw new Error('Settings manager not available');
+                }
+                addTestResult(testResults, 'Settings manager loaded', true);
+                
+                // Test 2: Get default settings
+                const defaultSettings = settingsManager.getDefaultSettings();
+                if (!defaultSettings || !defaultSettings.apiKeys) {
+                    throw new Error('Default settings not properly structured');
+                }
+                addTestResult(testResults, 'Default settings structure valid', true);
+                
+                // Test 3: Save and retrieve settings
+                const testSettings = { ...defaultSettings };
+                testSettings.apiKeys.gemini = 'test-key-123';
+                const saved = settingsManager.saveSettings(testSettings);
+                if (!saved) {
+                    throw new Error('Failed to save settings');
+                }
+                addTestResult(testResults, 'Settings save/load', true);
+                
+                // Test 4: Check provider configuration
+                const isConfigured = settingsManager.isProviderConfigured('gemini', 'test-key-123');
+                if (!isConfigured) {
+                    throw new Error('Provider configuration check failed');
+                }
+                addTestResult(testResults, 'Provider configuration check', true);
+                
+                // Test 5: Get configured providers
+                const configured = settingsManager.getConfiguredProviders();
+                addTestResult(testResults, `Found ${configured.length} configured provider(s)`, true);
+                
+            } catch (error) {
+                addTestResult(testResults, `Error: ${error.message}`, false);
+            }
+        }
+        
+        // Test AI service initialization
+        async function testAIService() {
+            const testResults = document.getElementById('ai-service-tests');
+            testResults.innerHTML = '';
+            
+            try {
+                // Test 1: Check if AI service is available
+                if (!window.aiService) {
+                    throw new Error('AI service not available');
+                }
+                addTestResult(testResults, 'AI service loaded', true);
+                
+                // Test 2: Try to initialize
+                const initialized = await aiService.initialize();
+                if (initialized) {
+                    addTestResult(testResults, 'AI service initialized successfully', true);
+                    addTestResult(testResults, `Current provider: ${aiService.currentProvider}`, true);
+                } else {
+                    addTestResult(testResults, 'AI service initialization failed (no providers configured)', false, 'This is expected if no API keys are configured');
+                }
+                
+            } catch (error) {
+                addTestResult(testResults, `Error: ${error.message}`, false);
+            }
+        }
+        
+        // Test model fetching
+        async function testModelFetching() {
+            const testResults = document.getElementById('model-tests');
+            testResults.innerHTML = '<div class="test-info">Testing model fetching (this may take a moment)...</div>';
+            
+            try {
+                const configuredProviders = settingsManager.getConfiguredProviders();
+                
+                if (configuredProviders.length === 0) {
+                    testResults.innerHTML = '<div class="test-info">No providers configured. Configure an API key first to test model fetching.</div>';
+                    return;
+                }
+                
+                testResults.innerHTML = '';
+                
+                for (const provider of configuredProviders) {
+                    try {
+                        const models = await settingsManager.getAvailableModels(provider.id);
+                        addTestResult(testResults, `${provider.name}: Found ${models.length} models`, true);
+                        
+                        if (models.length > 0) {
+                            const modelNames = models.slice(0, 3).map(m => m.name).join(', ');
+                            addTestResult(testResults, `Sample models: ${modelNames}${models.length > 3 ? '...' : ''}`, true);
+                        }
+                    } catch (error) {
+                        addTestResult(testResults, `${provider.name}: ${error.message}`, false);
+                    }
+                }
+                
+            } catch (error) {
+                addTestResult(testResults, `Error: ${error.message}`, false);
+            }
+        }
+        
+        // Open settings UI
+        function openSettings() {
+            if (window.settingsUI) {
+                window.settingsUI.open();
+                addTestResult(document.getElementById('ui-tests'), 'Settings UI opened successfully', true);
+            } else {
+                addTestResult(document.getElementById('ui-tests'), 'Settings UI not available', false);
+            }
+        }
+        
+        // Check provider status
+        function checkProviders() {
+            const statusDiv = document.getElementById('provider-status');
+            statusDiv.innerHTML = '';
+            
+            const settings = settingsManager.getSettings();
+            const providers = ['gemini', 'azureOpenAI', 'cerebras'];
+            
+            providers.forEach(providerId => {
+                const config = settings.apiKeys[providerId];
+                const isConfigured = settingsManager.isProviderConfigured(providerId, config);
+                const statusClass = isConfigured ? 'status-success' : 'status-error';
+                const statusText = isConfigured ? 'Configured' : 'Not configured';
+                
+                statusDiv.innerHTML += `
+                    <div style="margin: 8px 0;">
+                        <span class="status-indicator ${statusClass}"></span>
+                        <strong>${settingsManager.providers[providerId]?.name || providerId}:</strong> ${statusText}
+                    </div>
+                `;
+            });
+        }
+        
+        // Helper function to add test results
+        function addTestResult(container, message, success, note = '') {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${success ? 'test-success' : 'test-error'}`;
+            resultDiv.innerHTML = `
+                <strong>${success ? '✅' : '❌'} ${message}</strong>
+                ${note ? `<div style="font-size: 14px; margin-top: 4px;">${note}</div>` : ''}
+            `;
+            container.appendChild(resultDiv);
+        }
+        
+        // Run initial tests when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Give components time to initialize
+            setTimeout(() => {
+                checkProviders();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
