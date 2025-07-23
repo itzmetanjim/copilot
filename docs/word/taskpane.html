@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Odin Word Assistant</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+
+    <!-- Shared Resources -->
+    <link rel="stylesheet" type="text/css" href="../shared/styles.css" />
+    <script type="text/javascript" src="../shared/ai-service.js"></script>
+    <script type="text/javascript" src="../shared/ui-components.js"></script>
+    
+    <!-- Configuration -->
+    <script type="text/javascript" src="../config.js"></script>
+
+    <!-- Word-specific styles -->
+    <style>
+        .feature-section {
+            margin-bottom: 24px;
+        }
+        
+        .feature-section h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-action-btn {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: white;
+        }
+        
+        .quick-action-btn:hover {
+            background-color: var(--surface-color);
+            border-color: var(--primary-color);
+        }
+        
+        .quick-action-btn h4 {
+            margin: 0 0 4px 0;
+            color: var(--primary-color);
+        }
+        
+        .quick-action-btn p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .advanced-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body class="odin-container">
+    <!-- Header -->
+    <div class="odin-header">
+        <h1>🧙‍♂️ Odin Word Assistant</h1>
+        <p>AI-powered writing companion for Microsoft Word</p>
+    </div>
+
+    <!-- Provider Selector -->
+    <div id="provider-selector-container"></div>
+
+    <!-- Quick Actions Section -->
+    <div class="feature-section">
+        <h2>Quick Actions</h2>
+        <div class="quick-actions">
+            <div class="quick-action-btn" onclick="showDraftSection()">
+                <h4>📝 Draft with Odin</h4>
+                <p>Generate content from prompts</p>
+            </div>
+            <div class="quick-action-btn" onclick="showSummarizeSection()">
+                <h4>📄 Summarize</h4>
+                <p>Create document summaries</p>
+            </div>
+            <div class="quick-action-btn" onclick="showRewriteSection()">
+                <h4>✏️ Rewrite & Coach</h4>
+                <p>Improve selected text</p>
+            </div>
+            <div class="quick-action-btn" onclick="showFormatSection()">
+                <h4>🎨 Format & Style</h4>
+                <p>Apply formatting suggestions</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Draft Section -->
+    <div id="draft-section" class="feature-section" style="display: none;">
+        <h2>Draft with Odin</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">What would you like to write about?</label>
+            <textarea id="draft-prompt" class="odin-textarea" rows="3" 
+                placeholder="E.g., Write a professional email to thank a client for their business..."></textarea>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Content Type</label>
+            <select id="draft-type" class="odin-select">
+                <option value="paragraph">Paragraph</option>
+                <option value="document">Full Document</option>
+                <option value="outline">Outline</option>
+                <option value="list">Bullet List</option>
+                <option value="email">Email</option>
+                <option value="letter">Formal Letter</option>
+                <option value="report">Report</option>
+                <option value="essay">Essay</option>
+            </select>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Tone</label>
+            <select id="draft-tone" class="odin-select">
+                <option value="professional">Professional</option>
+                <option value="casual">Casual</option>
+                <option value="formal">Formal</option>
+                <option value="friendly">Friendly</option>
+                <option value="persuasive">Persuasive</option>
+                <option value="informative">Informative</option>
+                <option value="creative">Creative</option>
+            </select>
+        </div>
+        <button class="odin-btn odin-btn-primary" onclick="generateDraft()">Generate Content</button>
+        <div id="draft-response" class="odin-response hidden"></div>
+        <div id="draft-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Summarize Section -->
+    <div id="summarize-section" class="feature-section" style="display: none;">
+        <h2>Summarize Document</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Summarization Options</label>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-outline" onclick="summarizeDocument()">Entire Document</button>
+                <button class="odin-btn odin-btn-outline" onclick="summarizeSelection()">Selected Text</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Summary Length</label>
+            <select id="summary-length" class="odin-select">
+                <option value="short">Short (1-2 sentences)</option>
+                <option value="medium" selected>Medium (1 paragraph)</option>
+                <option value="long">Long (Multiple paragraphs)</option>
+            </select>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Summary Format</label>
+            <select id="summary-format" class="odin-select">
+                <option value="paragraph" selected>Paragraph</option>
+                <option value="bullets">Bullet Points</option>
+                <option value="outline">Outline</option>
+                <option value="key-points">Key Points</option>
+            </select>
+        </div>
+        <div id="summarize-response" class="odin-response hidden"></div>
+        <div id="summarize-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Rewrite Section -->
+    <div id="rewrite-section" class="feature-section" style="display: none;">
+        <h2>Rewrite & Coach</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Select text in your document first, then choose an action:</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="rewriteText('professional')">Make Professional</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="rewriteText('casual')">Make Casual</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="rewriteText('concise')">Make Concise</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="rewriteText('expand')">Expand</button>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="rewriteText('formal')">Make Formal</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="rewriteText('friendly')">Make Friendly</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="rewriteText('persuasive')">Make Persuasive</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="coachText()">Coach & Improve</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Custom Instructions (Optional)</label>
+            <textarea id="rewrite-instructions" class="odin-textarea" rows="2" 
+                placeholder="Additional instructions for rewriting..."></textarea>
+        </div>
+        <div id="rewrite-response" class="odin-response hidden"></div>
+        <div id="rewrite-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Format Section -->
+    <div id="format-section" class="feature-section" style="display: none;">
+        <h2>Format & Style</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Formatting Actions</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="formatDocument('headings')">Add Headings</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="formatDocument('bullets')">Create Bullet Points</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="formatDocument('numbers')">Number List</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="formatDocument('table')">Create Table</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Style Suggestions</label>
+            <textarea id="format-prompt" class="odin-textarea" rows="2" 
+                placeholder="Describe the formatting or style you want..."></textarea>
+            <button class="odin-btn odin-btn-primary" onclick="suggestFormatting()" style="margin-top: 8px;">Get Suggestions</button>
+        </div>
+        <div id="format-response" class="odin-response hidden"></div>
+        <div id="format-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Advanced Section -->
+    <div class="advanced-section">
+        <h2>Advanced Features</h2>
+        <div class="quick-actions">
+            <div class="quick-action-btn" onclick="analyzeDocument()">
+                <h4>🔍 Analyze Document</h4>
+                <p>Get insights about your content</p>
+            </div>
+            <div class="quick-action-btn" onclick="checkGrammar()">
+                <h4>✅ Grammar Check</h4>
+                <p>Improve writing quality</p>
+            </div>
+            <div class="quick-action-btn" onclick="generateOutline()">
+                <h4>📋 Create Outline</h4>
+                <p>Structure your document</p>
+            </div>
+            <div class="quick-action-btn" onclick="showSettings()">
+                <h4>⚙️ Settings</h4>
+                <p>Configure AI preferences</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" style="display: none;"></div>
+
+    <!-- Notification areas -->
+    <div id="ai-loading" class="odin-loading hidden"></div>
+    <div id="ai-error" class="odin-alert odin-alert-error hidden"></div>
+    <div id="ai-success" class="odin-alert odin-alert-success hidden"></div>
+
+    <!-- Word-specific JavaScript -->
+    <script src="word-assistant.js"></script>
+</body>
+</html>
