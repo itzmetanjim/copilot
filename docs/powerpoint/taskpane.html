@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Odin PowerPoint Assistant</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+
+    <!-- Shared Resources -->
+    <link rel="stylesheet" type="text/css" href="../shared/styles.css" />
+    <script type="text/javascript" src="../shared/settings-manager.js"></script>
+    <script type="text/javascript" src="../shared/ai-service.js"></script>
+    <script type="text/javascript" src="../shared/ui-components.js"></script>
+    <script type="text/javascript" src="../shared/settings-ui.js"></script>
+
+    <!-- PowerPoint-specific styles -->
+    <style>
+        .slide-preview {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            margin: var(--spacing-sm) 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .slide-content {
+            background: white;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-sm);
+            margin: var(--spacing-sm) 0;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .slide-number {
+            background: var(--primary-color);
+            color: white;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
+            font-size: var(--font-size-sm);
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .presentation-outline {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            margin: var(--spacing-sm) 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .outline-item {
+            padding: var(--spacing-xs) 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .outline-item:last-child {
+            border-bottom: none;
+        }
+        
+        .outline-level-1 {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .outline-level-2 {
+            margin-left: 20px;
+            color: var(--text-primary);
+        }
+        
+        .outline-level-3 {
+            margin-left: 40px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+        
+        .template-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+        }
+        
+        .template-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .template-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+        
+        .template-preview {
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: var(--font-size-lg);
+        }
+        
+        .template-info {
+            padding: var(--spacing-sm);
+        }
+        
+        .template-name {
+            font-weight: bold;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .template-desc {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+        
+        .slide-types {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            margin: var(--spacing-sm) 0;
+        }
+        
+        .slide-type-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-fast);
+            background: white;
+        }
+        
+        .slide-type-btn:hover,
+        .slide-type-btn.selected {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .speaker-notes-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            margin: var(--spacing-sm) 0;
+        }
+        
+        .notes-content {
+            font-style: italic;
+            color: #856404;
+        }
+    </style>
+</head>
+
+<body class="odin-container">
+    <!-- Header -->
+    <div class="odin-header">
+        <h1>🎯 Odin PowerPoint Assistant</h1>
+        <p>AI-powered presentation companion for Microsoft PowerPoint</p>
+    </div>
+
+    <!-- Provider Selector -->
+    <div id="provider-selector-container"></div>
+
+    <!-- Quick Actions Section -->
+    <div class="feature-section">
+        <h2>Quick Actions</h2>
+        <div class="quick-actions">
+            <div class="quick-action-btn" onclick="showCreateSection()">
+                <h4>🎨 Create Presentation</h4>
+                <p>Generate full presentations from topics</p>
+            </div>
+            <div class="quick-action-btn" onclick="showSlideSection()">
+                <h4>➕ Add Slides</h4>
+                <p>Create individual slides with content</p>
+            </div>
+            <div class="quick-action-btn" onclick="showNotesSection()">
+                <h4>🗣️ Speaker Notes</h4>
+                <p>Generate detailed speaker notes</p>
+            </div>
+            <div class="quick-action-btn" onclick="showDesignSection()">
+                <h4>🎨 Design Assistant</h4>
+                <p>Improve slide design and layout</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Presentation Section -->
+    <div id="create-section" class="feature-section" style="display: none;">
+        <h2>Create Presentation</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Presentation Topic</label>
+            <textarea id="presentation-topic" class="odin-textarea" rows="3" 
+                placeholder="E.g., The benefits of renewable energy for sustainable development..."></textarea>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Presentation Type</label>
+            <select id="presentation-type" class="odin-select">
+                <option value="business">Business Presentation</option>
+                <option value="educational">Educational/Training</option>
+                <option value="sales">Sales Pitch</option>
+                <option value="report">Project Report</option>
+                <option value="academic">Academic Presentation</option>
+                <option value="proposal">Proposal/Pitch</option>
+                <option value="overview">Company Overview</option>
+                <option value="product">Product Launch</option>
+            </select>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Target Audience</label>
+            <input type="text" id="target-audience" class="odin-input" 
+                placeholder="E.g., Business executives, Students, Technical team...">
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Approximate Number of Slides</label>
+            <select id="slide-count" class="odin-select">
+                <option value="5-7">Short (5-7 slides)</option>
+                <option value="8-12" selected>Medium (8-12 slides)</option>
+                <option value="15-20">Long (15-20 slides)</option>
+                <option value="20+">Extended (20+ slides)</option>
+            </select>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Additional Requirements (Optional)</label>
+            <textarea id="additional-requirements" class="odin-textarea" rows="2" 
+                placeholder="Special requirements, key points to cover, style preferences..."></textarea>
+        </div>
+        <button class="odin-btn odin-btn-primary" onclick="createPresentation()">Generate Presentation</button>
+        <div id="create-response" class="odin-response hidden"></div>
+        <div id="presentation-outline" class="presentation-outline hidden"></div>
+        <div id="create-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Add Slides Section -->
+    <div id="slide-section" class="feature-section" style="display: none;">
+        <h2>Add New Slides</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Slide Content Topic</label>
+            <textarea id="slide-content" class="odin-textarea" rows="2" 
+                placeholder="E.g., Market analysis showing growth trends in Q3..."></textarea>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Slide Type</label>
+            <div class="slide-types">
+                <div class="slide-type-btn selected" data-type="title-content" onclick="selectSlideType('title-content')">Title & Content</div>
+                <div class="slide-type-btn" data-type="two-content" onclick="selectSlideType('two-content')">Two Content</div>
+                <div class="slide-type-btn" data-type="comparison" onclick="selectSlideType('comparison')">Comparison</div>
+                <div class="slide-type-btn" data-type="content-with-caption" onclick="selectSlideType('content-with-caption')">Content with Caption</div>
+                <div class="slide-type-btn" data-type="picture-with-caption" onclick="selectSlideType('picture-with-caption')">Picture with Caption</div>
+                <div class="slide-type-btn" data-type="title-only" onclick="selectSlideType('title-only')">Title Only</div>
+                <div class="slide-type-btn" data-type="blank" onclick="selectSlideType('blank')">Blank</div>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Insert Position</label>
+            <select id="insert-position" class="odin-select">
+                <option value="after-current">After Current Slide</option>
+                <option value="end">At End of Presentation</option>
+                <option value="beginning">At Beginning</option>
+                <option value="before-current">Before Current Slide</option>
+            </select>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Number of Slides</label>
+            <select id="slides-to-add" class="odin-select">
+                <option value="1" selected>1 slide</option>
+                <option value="2">2 slides</option>
+                <option value="3">3 slides</option>
+                <option value="4">4 slides</option>
+                <option value="5">5 slides</option>
+            </select>
+        </div>
+        <button class="odin-btn odin-btn-primary" onclick="addSlides()">Add Slides</button>
+        <div id="slide-response" class="odin-response hidden"></div>
+        <div id="slide-preview" class="slide-preview hidden"></div>
+        <div id="slide-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Speaker Notes Section -->
+    <div id="notes-section" class="feature-section" style="display: none;">
+        <h2>Speaker Notes Generator</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Generate Notes For</label>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-outline" onclick="generateNotesFor('current')">Current Slide</button>
+                <button class="odin-btn odin-btn-outline" onclick="generateNotesFor('selected')">Selected Slides</button>
+                <button class="odin-btn odin-btn-outline" onclick="generateNotesFor('all')">All Slides</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Notes Style</label>
+            <select id="notes-style" class="odin-select">
+                <option value="detailed">Detailed Notes</option>
+                <option value="bullet-points">Bullet Points</option>
+                <option value="conversational">Conversational Style</option>
+                <option value="formal">Formal Presentation</option>
+                <option value="teaching">Teaching/Training</option>
+                <option value="brief">Brief Reminders</option>
+            </select>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Presentation Duration (Optional)</label>
+            <select id="presentation-duration" class="odin-select">
+                <option value="">Auto-detect</option>
+                <option value="5-10">5-10 minutes</option>
+                <option value="10-15">10-15 minutes</option>
+                <option value="15-30">15-30 minutes</option>
+                <option value="30-45">30-45 minutes</option>
+                <option value="45-60">45-60 minutes</option>
+                <option value="60+">60+ minutes</option>
+            </select>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Additional Context (Optional)</label>
+            <textarea id="notes-context" class="odin-textarea" rows="2" 
+                placeholder="Audience level, key messages to emphasize, personal speaking style..."></textarea>
+        </div>
+        <div id="notes-response" class="odin-response hidden"></div>
+        <div id="speaker-notes-preview" class="speaker-notes-section hidden"></div>
+        <div id="notes-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Design Assistant Section -->
+    <div id="design-section" class="feature-section" style="display: none;">
+        <h2>Design Assistant</h2>
+        <div class="odin-form-group">
+            <label class="odin-label">Design Tasks</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="improveDesign('layout')">Improve Layout</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="improveDesign('colors')">Color Scheme</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="improveDesign('fonts')">Typography</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="improveDesign('consistency')">Consistency Check</button>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="analyzePresentation()">Analyze Presentation</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="suggestImages()">Suggest Images</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="checkAccessibility()">Accessibility Check</button>
+                <button class="odin-btn odin-btn-sm odin-btn-outline" onclick="generateSummary()">Create Summary</button>
+            </div>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Design Preferences</label>
+            <select id="design-style" class="odin-select">
+                <option value="professional">Professional</option>
+                <option value="modern">Modern & Clean</option>
+                <option value="creative">Creative & Bold</option>
+                <option value="minimalist">Minimalist</option>
+                <option value="corporate">Corporate</option>
+                <option value="academic">Academic</option>
+                <option value="colorful">Colorful & Vibrant</option>
+            </select>
+        </div>
+        <div class="odin-form-group">
+            <label class="odin-label">Custom Design Instructions</label>
+            <textarea id="design-instructions" class="odin-textarea" rows="2" 
+                placeholder="Specific design requirements, brand guidelines, color preferences..."></textarea>
+            <button class="odin-btn odin-btn-primary" onclick="customDesignSuggestions()" style="margin-top: 8px;">Get Design Suggestions</button>
+        </div>
+        <div id="design-response" class="odin-response hidden"></div>
+        <div id="design-response-actions" class="odin-action-buttons hidden"></div>
+    </div>
+
+    <!-- Advanced Section -->
+    <div class="advanced-section">
+        <h2>Advanced Features</h2>
+        <div class="quick-actions">
+            <div class="quick-action-btn" onclick="translatePresentation()">
+                <h4>🌐 Translate</h4>
+                <p>Translate presentation content</p>
+            </div>
+            <div class="quick-action-btn" onclick="extractOutline()">
+                <h4>📋 Extract Outline</h4>
+                <p>Get presentation structure</p>
+            </div>
+            <div class="quick-action-btn" onclick="contentSuggestions()">
+                <h4>💡 Content Ideas</h4>
+                <p>Suggest additional content</p>
+            </div>
+            <div class="quick-action-btn" onclick="showSettings()">
+                <h4>⚙️ Settings</h4>
+                <p>Configure AI preferences</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" style="display: none;"></div>
+
+    <!-- Notification areas -->
+    <div id="ai-loading" class="odin-loading hidden"></div>
+    <div id="ai-error" class="odin-alert odin-alert-error hidden"></div>
+    <div id="ai-success" class="odin-alert odin-alert-success hidden"></div>
+
+    <!-- PowerPoint-specific JavaScript -->
+    <script src="powerpoint-assistant.js"></script>
+</body>
+</html>
